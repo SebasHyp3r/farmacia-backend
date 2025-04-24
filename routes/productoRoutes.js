@@ -1,10 +1,11 @@
 const express = require('express');
-const Producto = require('../models/producto'); // Importamos el modelo de Producto
+const Producto = require('../models/producto');
+const verificarToken = require('../middlewares/authMiddleware'); // ✅ Importamos el middleware
 
 const router = express.Router();
 
-// Obtener todos los productos
-router.get('/', async (req, res) => {
+// Obtener todos los productos (protegido)
+router.get('/', verificarToken, async (req, res) => {
   try {
     const productos = await Producto.find();
     res.json(productos);
@@ -13,8 +14,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Crear un nuevo producto
-router.post('/', async (req, res) => {
+// Crear un nuevo producto (protegido)
+router.post('/', verificarToken, async (req, res) => {
   const nuevoProducto = new Producto(req.body);
   try {
     await nuevoProducto.save();
@@ -24,8 +25,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Actualizar un producto
-router.put('/:id', async (req, res) => {
+// Actualizar un producto (protegido)
+router.put('/:id', verificarToken, async (req, res) => {
   try {
     await Producto.findByIdAndUpdate(req.params.id, req.body);
     res.send('Producto actualizado');
@@ -34,8 +35,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Eliminar un producto
-router.delete('/:id', async (req, res) => {
+// Eliminar un producto (protegido)
+router.delete('/:id', verificarToken, async (req, res) => {
   try {
     await Producto.findByIdAndDelete(req.params.id);
     res.send('Producto eliminado');
