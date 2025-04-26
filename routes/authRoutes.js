@@ -7,11 +7,6 @@ router.get('/test', (req, res) => {
     res.send('Ruta de prueba OK');
 });
 
-// ¡Esto está mal!
-app.post('/api/auth/register', (req, res) => {
-    res.send('Registro temporal funcionando');
-});
-
 // Estas son tus rutas reales:
 router.post('/register', register);
 router.post('/login', login);
