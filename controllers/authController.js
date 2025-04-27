@@ -25,7 +25,8 @@ const register = async (req, res) => {
     await nuevoEmpleado.save();
     res.status(201).json({ mensaje: 'Empleado registrado correctamente' });
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al registrar', error });
+    console.error(error);
+    res.status(500).json({ mensaje: 'Error al registrar', error: error.message });
   }
 };
 
