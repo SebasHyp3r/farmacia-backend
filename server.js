@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose'); // <-- importamos mongoose
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 // Crear app
@@ -11,14 +11,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Conexión a MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log('MongoDB conectado correctamente'))
-.catch((error) => console.error('Error al conectar a MongoDB:', error));
-
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
 
@@ -26,6 +18,11 @@ const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
 console.log("authRoutes cargado correctamente");
+
+// Conectar a MongoDB
+mongoose.connect(process.env.MONGODB_URI, {})
+  .then(() => console.log('Conectado a MongoDB'))
+  .catch(err => console.error('Error al conectar a MongoDB:', err));
 
 // Ruta de prueba general (opcional)
 app.get('/test', (req, res) => {
