@@ -13,11 +13,13 @@ app.use(bodyParser.json());
 
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
+const empleadoRoutes = require('./routes/empleadoRoutes'); // 👈 nuevo
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
+app.use('/api/empleados', empleadoRoutes); // 👈 nuevo
 
-console.log("authRoutes cargado correctamente");
+console.log("authRoutes y empleadoRoutes cargados correctamente");
 
 // Conectar a MongoDB
 mongoose.connect(process.env.MONGODB_URI, {})
