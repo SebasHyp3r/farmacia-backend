@@ -2,19 +2,19 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const verificarToken = (req, res, next) => {
-  const token = req.header('Authorization');
+  const authHeader = req.headers['authorization'];
+  const token = authHeader?.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ mensaje: 'Acceso denegado. No se proporcionó token' });
+    return res.status(403).json({ mensaje: 'Token no proporcionado' });
   }
 
   try {
-    const tokenLimpio = token.replace('Bearer ', '');
-    const verificado = jwt.verify(tokenLimpio, process.env.JWT_SECRET);
-    req.usuario = verificado; // Guarda los datos del usuario en la request
-    next(); // Continúa con la ruta protegida
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.usuario = decoded;
+    next();
   } catch (error) {
-    res.status(401).json({ mensaje: 'Token inválido' });
+    res.status(401).json({ mensaje: 'Token inválido o expirado' });
   }
 };
 
