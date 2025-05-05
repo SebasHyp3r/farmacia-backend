@@ -7,37 +7,28 @@ require('dotenv').config();
 // Crear app
 const app = express();
 
-// Middlewares
+// Middlewares globales
 app.use(cors());
 app.use(bodyParser.json());
 
-// Modelo de Visita
-const Visita = require('./models/Visita');
-
-// Middleware para registrar cada visita
-app.use(async (req, res, next) => {
-  try {
-    await Visita.create({
-      ip: req.ip,
-      userAgent: req.headers['user-agent']
-    });
-  } catch (error) {
-    console.error('Error registrando visita:', error.message);
-  }
-  next();
-});
+// Middleware para registrar visitas
+const registrarVisita = require('./middlewares/registrarVisita');
+app.use(registrarVisita);
 
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
 const empleadoRoutes = require('./routes/empleadoRoutes');
 const productoRoutes = require('./routes/productoRoutes');
-
+const visitaRoutes = require('./routes/visitaRoutes');
 // Usar rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/empleados', empleadoRoutes);
 app.use('/api/productos', productoRoutes);
+app.use('/api/visitas', visitaRoutes);
+// Modelo Visita para consultar registros
+const Visita = require('./models/Visita');
 
-// Ruta de prueba para ver las visitas (opcional)
+// Ruta para obtener las visitas
 app.get('/api/visitas', async (req, res) => {
   try {
     const visitas = await Visita.find().sort({ fecha: -1 });
@@ -54,7 +45,7 @@ mongoose.connect(process.env.MONGODB_URI, {})
   .then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.error('Error al conectar a MongoDB:', err));
 
-// Escuchar servidor
+// Iniciar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
