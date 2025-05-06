@@ -32,7 +32,7 @@ const Visita = require('./models/Visita');
 
 // Ruta raíz para confirmar funcionamiento
 app.get('/', (req, res) => {
-  res.send('✅ API de Farmacia funcionando correctamente');
+  res.send('API de Farmacia funcionando correctamente');
 });
 
 // Ruta para obtener las visitas (ya no es necesaria si ya tienes en visitaRoutes)
