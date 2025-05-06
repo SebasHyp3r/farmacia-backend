@@ -20,15 +20,22 @@ const authRoutes = require('./routes/authRoutes');
 const empleadoRoutes = require('./routes/empleadoRoutes');
 const productoRoutes = require('./routes/productoRoutes');
 const visitaRoutes = require('./routes/visitaRoutes');
+
 // Usar rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/empleados', empleadoRoutes);
 app.use('/api/productos', productoRoutes);
 app.use('/api/visitas', visitaRoutes);
+
 // Modelo Visita para consultar registros
 const Visita = require('./models/Visita');
 
-// Ruta para obtener las visitas
+// Ruta raíz para confirmar funcionamiento
+app.get('/', (req, res) => {
+  res.send('✅ API de Farmacia funcionando correctamente');
+});
+
+// Ruta para obtener las visitas (ya no es necesaria si ya tienes en visitaRoutes)
 app.get('/api/visitas', async (req, res) => {
   try {
     const visitas = await Visita.find().sort({ fecha: -1 });
