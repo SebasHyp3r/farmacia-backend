@@ -27,22 +27,9 @@ app.use('/api/empleados', empleadoRoutes);
 app.use('/api/productos', productoRoutes);
 app.use('/api/visitas', visitaRoutes);
 
-// Modelo Visita para consultar registros
-const Visita = require('./models/Visita');
-
-// Ruta raíz para confirmar funcionamiento
+// Ruta raíz para comprobar que está vivo
 app.get('/', (req, res) => {
   res.send('API de Farmacia funcionando correctamente');
-});
-
-// Ruta para obtener las visitas (ya no es necesaria si ya tienes en visitaRoutes)
-app.get('/api/visitas', async (req, res) => {
-  try {
-    const visitas = await Visita.find().sort({ fecha: -1 });
-    res.json(visitas);
-  } catch (err) {
-    res.status(500).json({ error: 'Error obteniendo visitas' });
-  }
 });
 
 console.log("authRoutes, empleadoRoutes y productoRoutes cargados correctamente");
