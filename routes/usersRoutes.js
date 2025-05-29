@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const { verificarToken, soloAdmin } = require('../middleware/authMiddleware');
 
-// Obtener todos los usuarios
-router.get('/', async (req, res) => {
+// Ruta protegida, solo admins pueden listar usuarios
+router.get('/', verificarToken, soloAdmin, async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);

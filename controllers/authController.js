@@ -1,24 +1,20 @@
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
   try {
     const { nombre, email, password, rol } = req.body;
 
-    if (!nombre || !email || !password) {
-      return res.status(400).json({ mensaje: 'Nombre, email y password son obligatorios' });
-    }
+    // Verificar si el email ya está registrado
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ mensaje: 'Email ya registrado' });
 
-    const userExistente = await User.findOne({ email });
-    if (userExistente) {
-      return res.status(400).json({ mensaje: 'El usuario ya existe' });
-    }
-
-    const nuevoUser = new User({ nombre, email, password, rol });
-    await nuevoUser.save();
+    // Crear nuevo usuario
+    const user = new User({ nombre, email, password, rol });
+    await user.save();
 
     res.status(201).json({ mensaje: 'Usuario registrado correctamente' });
   } catch (error) {
-    console.error('Error al registrar:', error);
     res.status(500).json({ mensaje: 'Error al registrar', error: error.message });
   }
 };
@@ -27,24 +23,32 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ mensaje: 'Email y password son obligatorios' });
-    }
-
+    // Buscar usuario por email
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ mensaje: 'Usuario no encontrado' });
-    }
+    if (!user) return res.status(400).json({ mensaje: 'Usuario no encontrado' });
 
-    const esValido = await user.comparePassword(password);
-    if (!esValido) {
-      return res.status(400).json({ mensaje: 'Password incorrecto' });
-    }
+    // Comparar contraseña
+    const esValido = await user.compararPassword(password);
+    if (!esValido) return res.status(400).json({ mensaje: 'Contraseña incorrecta' });
 
-    // Aquí podrías generar un token JWT y enviarlo
-    res.json({ mensaje: 'Login exitoso', usuario: { nombre: user.nombre, email: user.email, rol: user.rol } });
+    // Crear token JWT con id y rol
+    const token = jwt.sign(
+      { id: user._id, rol: user.rol, nombre: user.nombre },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({
+      mensaje: 'Login exitoso',
+      token,
+      usuario: {
+        id: user._id,
+        nombre: user.nombre,
+        email: user.email,
+        rol: user.rol
+      }
+    });
   } catch (error) {
-    console.error('Error en login:', error);
     res.status(500).json({ mensaje: 'Error en login', error: error.message });
   }
 };
