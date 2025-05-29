@@ -4,19 +4,17 @@ const register = async (req, res) => {
   try {
     const { nombre, email, password, rol } = req.body;
 
-    console.log('Body recibido en /register:', req.body);
-
-    if (!email || !password) {
-      return res.status(400).json({ mensaje: 'Email y password son obligatorios' });
+    if (!nombre || !email || !password) {
+      return res.status(400).json({ mensaje: 'Nombre, email y password son obligatorios' });
     }
 
-    const usuarioExistente = await User.findOne({ email });
-    if (usuarioExistente) {
+    const userExistente = await User.findOne({ email });
+    if (userExistente) {
       return res.status(400).json({ mensaje: 'El usuario ya existe' });
     }
 
-    const nuevoUsuario = new User({ nombre, email, password, rol });
-    await nuevoUsuario.save();
+    const nuevoUser = new User({ nombre, email, password, rol });
+    await nuevoUser.save();
 
     res.status(201).json({ mensaje: 'Usuario registrado correctamente' });
   } catch (error) {
@@ -33,18 +31,18 @@ const login = async (req, res) => {
       return res.status(400).json({ mensaje: 'Email y password son obligatorios' });
     }
 
-    const usuario = await User.findOne({ email });
-    if (!usuario) {
+    const user = await User.findOne({ email });
+    if (!user) {
       return res.status(400).json({ mensaje: 'Usuario no encontrado' });
     }
 
-    const esValido = await usuario.comparePassword(password);
+    const esValido = await user.comparePassword(password);
     if (!esValido) {
-      return res.status(400).json({ mensaje: 'Contraseña incorrecta' });
+      return res.status(400).json({ mensaje: 'Password incorrecto' });
     }
 
-    // Aquí puedes crear y enviar un JWT u otro sistema de autenticación
-    res.json({ mensaje: 'Login exitoso', usuario: { nombre: usuario.nombre, email: usuario.email, rol: usuario.rol } });
+    // Aquí podrías generar un token JWT y enviarlo
+    res.json({ mensaje: 'Login exitoso', usuario: { nombre: user.nombre, email: user.email, rol: user.rol } });
   } catch (error) {
     console.error('Error en login:', error);
     res.status(500).json({ mensaje: 'Error en login', error: error.message });
