@@ -17,13 +17,13 @@ app.use(registrarVisita);
 
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
-const empleadoRoutes = require('./routes/empleadoRoutes');
+const userRoutes = require('./routes/userRoutes');
 const productoRoutes = require('./routes/productoRoutes');
 const visitaRoutes = require('./routes/visitaRoutes');
 
 // Usar rutas
-app.use('/api/auth', authRoutes);
-app.use('/api/empleados', empleadoRoutes);
+app.use('/api/auth', authRoutes);    // Login y registro
+app.use('/api/users', userRoutes);   // CRUD usuarios
 app.use('/api/productos', productoRoutes);
 app.use('/api/visitas', visitaRoutes);
 
@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
   res.send('API de Farmacia funcionando correctamente');
 });
 
-console.log("authRoutes, empleadoRoutes y productoRoutes cargados correctamente");
+console.log("Rutas cargadas correctamente");
 
 // Conectar a MongoDB
 mongoose.connect(process.env.MONGODB_URI, {})
