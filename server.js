@@ -17,7 +17,7 @@ app.use(registrarVisita);
 
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
+const userRoutes = require('./routes/usersRoutes');
 const productoRoutes = require('./routes/productoRoutes');
 const visitaRoutes = require('./routes/visitaRoutes');
 
