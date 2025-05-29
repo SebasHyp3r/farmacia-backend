@@ -1,50 +1,53 @@
-const Empleado = require('../models/Empleado');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const User = require('../models/User');
 
 const register = async (req, res) => {
-  const { nombre, usuario, password, rol } = req.body;
-
   try {
-    const existeEmpleado = await Empleado.findOne({ usuario });
-    if (existeEmpleado) {
+    const { nombre, email, password, rol } = req.body;
+
+    console.log('Body recibido en /register:', req.body);
+
+    if (!email || !password) {
+      return res.status(400).json({ mensaje: 'Email y password son obligatorios' });
+    }
+
+    const usuarioExistente = await User.findOne({ email });
+    if (usuarioExistente) {
       return res.status(400).json({ mensaje: 'El usuario ya existe' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const nuevoEmpleado = new Empleado({ nombre, usuario, password: hashedPassword, rol });
+    const nuevoUsuario = new User({ nombre, email, password, rol });
+    await nuevoUsuario.save();
 
-    await nuevoEmpleado.save();
-    res.status(201).json({ mensaje: 'Empleado registrado correctamente' });
+    res.status(201).json({ mensaje: 'Usuario registrado correctamente' });
   } catch (error) {
+    console.error('Error al registrar:', error);
     res.status(500).json({ mensaje: 'Error al registrar', error: error.message });
   }
 };
 
 const login = async (req, res) => {
-  const { usuario, password } = req.body;
-
   try {
-    const empleado = await Empleado.findOne({ usuario });
-    if (!empleado) {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ mensaje: 'Email y password son obligatorios' });
+    }
+
+    const usuario = await User.findOne({ email });
+    if (!usuario) {
       return res.status(400).json({ mensaje: 'Usuario no encontrado' });
     }
 
-    const match = await bcrypt.compare(password, empleado.password);
-    if (!match) {
+    const esValido = await usuario.comparePassword(password);
+    if (!esValido) {
       return res.status(400).json({ mensaje: 'Contraseña incorrecta' });
     }
 
-    const token = jwt.sign(
-      { id: empleado._id, usuario: empleado.usuario, rol: empleado.rol },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' }
-    );
-
-    res.json({ mensaje: 'Login exitoso', token });
+    // Aquí puedes crear y enviar un JWT u otro sistema de autenticación
+    res.json({ mensaje: 'Login exitoso', usuario: { nombre: usuario.nombre, email: usuario.email, rol: usuario.rol } });
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al iniciar sesión', error: error.message });
+    console.error('Error en login:', error);
+    res.status(500).json({ mensaje: 'Error en login', error: error.message });
   }
 };
 
