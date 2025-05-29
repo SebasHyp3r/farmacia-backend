@@ -17,13 +17,13 @@ app.use(registrarVisita);
 
 // Importar rutas
 const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/usersRoutes');
+const usersRoutes = require('./routes/usersRoutes'); 
 const productoRoutes = require('./routes/productoRoutes');
 const visitaRoutes = require('./routes/visitaRoutes');
 
 // Usar rutas
-app.use('/api/auth', authRoutes);    // Login y registro
-app.use('/api/users', userRoutes);   // CRUD usuarios
+app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);  
 app.use('/api/productos', productoRoutes);
 app.use('/api/visitas', visitaRoutes);
 
