@@ -20,12 +20,14 @@ const authRoutes = require('./routes/authRoutes');
 const usersRoutes = require('./routes/usersRoutes'); 
 const productoRoutes = require('./routes/productoRoutes');
 const visitaRoutes = require('./routes/visitaRoutes');
+const chatbotRoutes = require('./routes/chatbotRoutes'); 
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);  
 app.use('/api/productos', productoRoutes);
 app.use('/api/visitas', visitaRoutes);
+app.use('/api/chatbot', chatbotRoutes); 
 
 // Ruta raíz para comprobar que está vivo
 app.get('/', (req, res) => {
