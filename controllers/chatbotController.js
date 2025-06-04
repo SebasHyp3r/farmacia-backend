@@ -3,6 +3,8 @@ const { OpenAI } = require('openai');
 
 require('dotenv').config();
 
+console.log('OPENAI_API_KEY en chatbotController:', process.env.OPENAI_API_KEY ? '[OK]' : '[NO ENCONTRADA]');
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
