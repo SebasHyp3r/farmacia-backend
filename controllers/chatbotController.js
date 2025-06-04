@@ -1,11 +1,10 @@
 const Producto = require('../models/producto');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 
 // Inicializar OpenAI
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 // Controlador principal
 const responderMensaje = async (req, res) => {
@@ -32,7 +31,7 @@ const responderMensaje = async (req, res) => {
     }
 
     // Si no se encuentra en el stock, consulta a OpenAI
-    const respuestaIA = await openai.createChatCompletion({
+    const respuestaIA = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
         { role: 'system', content: 'Eres un asistente de farmacia. Puedes responder sobre medicamentos, síntomas comunes, y consejos básicos de salud. Evita diagnósticos médicos.' },
@@ -42,7 +41,7 @@ const responderMensaje = async (req, res) => {
       temperature: 0.7,
     });
 
-    const respuesta = respuestaIA.data.choices[0].message.content;
+    const respuesta = respuestaIA.choices[0].message.content;
     res.json({ respuesta });
 
   } catch (error) {
