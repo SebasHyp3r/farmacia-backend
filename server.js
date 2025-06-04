@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// Verificar variable de entorno OPENAI_API_KEY
+console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? '[OK]' : '[NO ENCONTRADA]');
+
 // Crear app
 const app = express();
 
