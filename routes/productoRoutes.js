@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const cors = require('cors');
 const productoController = require('../controllers/productoController');
+
+// Aplicar CORS específicamente a estas rutas
+router.use(cors());
 
 // Crear un producto
 router.post('/', productoController.crearProducto);

@@ -1,48 +1,35 @@
-const axios = require('axios');
-const { OpenAI } = require('openai');
+const Producto = require('../models/producto');
 
-require('dotenv').config();
+// Función que busca productos en base al texto del usuario
+const responderMensaje = async (req, res) => {
+  const { mensaje } = req.body;
 
-console.log('OPENAI_API_KEY en chatbotController:', process.env.OPENAI_API_KEY ? '[OK]' : '[NO ENCONTRADA]');
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-exports.handleChat = async (req, res) => {
-  const { message } = req.body;
+  if (!mensaje) {
+    return res.status(400).json({ respuesta: 'Por favor, envía un mensaje para procesar.' });
+  }
 
   try {
-    // 1. Obtener productos del stock desde tu API
-    const response = await axios.get('https://farmacia-backend-1ahx.onrender.com/productos');
-    const productos = response.data;
+    // Convertimos el mensaje a minúsculas
+    const mensajeLower = mensaje.toLowerCase();
 
-    // 2. Preparar la lista de productos para pasarla a OpenAI
-    const listaProductos = productos.map(p => `- ${p.nombre} (S/.${p.precio})`).join('\n');
+    // Buscamos si alguna palabra del mensaje coincide con un producto
+    const productos = await Producto.find();
 
-    // 3. Enviar pregunta y contexto a OpenAI
-    const completion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: 'system',
-          content: `Eres un asistente de farmacia. Estos son los productos disponibles:\n${listaProductos}\nResponde preguntas de los usuarios basándote solo en esta lista.`,
-        },
-        {
-          role: 'user',
-          content: message
-        }
-      ],
-      model: 'gpt-3.5-turbo',
-    });
+    const encontrados = productos.filter(p =>
+      mensajeLower.includes(p.nombre.toLowerCase())
+    );
 
-    const respuesta = completion.choices[0].message.content;
-    res.json({ respuesta });
-
+    if (encontrados.length > 0) {
+      const respuestas = encontrados.map(p =>
+        `Sí, tenemos "${p.nombre}" con ${p.stock} unidades en stock.`
+      );
+      res.json({ respuesta: respuestas.join(' ') });
+    } else {
+      res.json({ respuesta: 'Lo siento, no encontré ese producto en nuestro stock.' });
+    }
   } catch (error) {
-  console.error('Error completo:', error);
-  if (error.response) {
-    console.error('Error response data:', error.response.data);
+    res.status(500).json({ respuesta: 'Error al procesar el mensaje.', error: error.message });
   }
-  res.status(500).json({ error: 'Error procesando la consulta del chatbot.' });
-}
 };
+
+module.exports = { responderMensaje };

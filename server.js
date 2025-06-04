@@ -4,11 +4,12 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-// Verificar variable de entorno OPENAI_API_KEY
-console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? '[OK]' : '[NO ENCONTRADA]');
-
-// Crear app
+// Crear la app
 const app = express();
+
+// Verificar variable de entorno
+console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? '[OK]' : '[NO ENCONTRADA]');
+console.log('MONGODB_URI:', process.env.MONGODB_URI ? '[OK]' : '[NO ENCONTRADA]');
 
 // Middlewares globales
 app.use(cors());
@@ -32,14 +33,14 @@ app.use('/api/productos', productoRoutes);
 app.use('/api/visitas', visitaRoutes);
 app.use('/api/chatbot', chatbotRoutes); 
 
-// Ruta raíz para comprobar que está vivo
+// Ruta raíz
 app.get('/', (req, res) => {
   res.send('API de Farmacia funcionando correctamente');
 });
 
 console.log("Rutas cargadas correctamente");
 
-// Conectar a MongoDB
+// Conexión a MongoDB
 mongoose.connect(process.env.MONGODB_URI, {})
   .then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.error('Error al conectar a MongoDB:', err));
