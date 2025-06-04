@@ -39,7 +39,10 @@ exports.handleChat = async (req, res) => {
     res.json({ respuesta });
 
   } catch (error) {
-    console.error('Error:', error.message);
-    res.status(500).json({ error: 'Error procesando la consulta del chatbot.' });
+  console.error('Error completo:', error);
+  if (error.response) {
+    console.error('Error response data:', error.response.data);
   }
+  res.status(500).json({ error: 'Error procesando la consulta del chatbot.' });
+}
 };
