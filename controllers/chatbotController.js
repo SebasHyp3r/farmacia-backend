@@ -1,12 +1,12 @@
 const Producto = require('../models/producto');
-const OpenAI = require('openai');
+const { OpenAI } = require('openai');
+require('dotenv').config();
 
-// Inicializar OpenAI
+// Configura el cliente de OpenAI
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Controlador principal
 const responderMensaje = async (req, res) => {
   const { mensaje } = req.body;
 
@@ -15,7 +15,6 @@ const responderMensaje = async (req, res) => {
   }
 
   try {
-    // Buscar en el stock primero
     const mensajeLower = mensaje.toLowerCase();
     const productos = await Producto.find();
 
@@ -23,30 +22,35 @@ const responderMensaje = async (req, res) => {
       mensajeLower.includes(p.nombre.toLowerCase())
     );
 
+    // Si se encontraron productos, responder con stock y un saludo cordial
     if (encontrados.length > 0) {
       const respuestas = encontrados.map(p =>
-        `Sí, tenemos "${p.nombre}" con ${p.stock} unidades en stock.`
+        `Tenemos "${p.nombre}" con ${p.stock} unidades disponibles.`
       );
-      return res.json({ respuesta: respuestas.join(' ') });
+
+      return res.json({
+        respuesta: `¡Hola! Gracias por contactarnos. ${respuestas.join(' ')} ¿En qué más puedo ayudarte?`
+      });
     }
 
-    // Si no se encuentra en el stock, consulta a OpenAI
-    const respuestaIA = await openai.chat.completions.create({
+    // Si no se encontraron productos, responder con OpenAI
+    const completion = await openai.chat.completions.create({
+      messages: [{ role: 'user', content: mensaje }],
       model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: 'Eres un asistente de farmacia. Puedes responder sobre medicamentos, síntomas comunes, y consejos básicos de salud. Evita diagnósticos médicos.' },
-        { role: 'user', content: mensaje }
-      ],
-      max_tokens: 200,
-      temperature: 0.7,
     });
 
-    const respuesta = respuestaIA.choices[0].message.content;
-    res.json({ respuesta });
+    const respuestaIA = completion.choices[0].message.content;
+
+    return res.json({
+      respuesta: `¡Hola! 😊 Gracias por tu consulta. ${respuestaIA}`
+    });
 
   } catch (error) {
-    console.error('Error en el chatbot:', error);
-    res.status(500).json({ respuesta: 'Error al procesar el mensaje.', error: error.message });
+    console.error('Error al responder mensaje:', error.message);
+    return res.status(500).json({
+      respuesta: 'Hubo un error al procesar tu mensaje.',
+      error: error.message,
+    });
   }
 };
 
